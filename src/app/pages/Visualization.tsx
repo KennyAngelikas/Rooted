@@ -170,7 +170,16 @@ const initialDiscussions: Discussion[] = [
 ];
 
 // Calculate node size based on upvotes
-function getNodeSize(upvotes: number): { width: number; height: number; padding: string; fontSize: string } {
+function getNodeSize(upvotes: number, isOriginalPost: boolean): { width: number; height: number; padding: string; fontSize: string } {
+  if (isOriginalPost) {
+    return {
+      width: 200,
+      height: 200,
+      padding: '24px',
+      fontSize: '20px',
+    };
+  } 
+ 
   const minSize = 120;
   const maxSize = 350;
   const minUpvotes = 0;
@@ -178,7 +187,8 @@ function getNodeSize(upvotes: number): { width: number; height: number; padding:
 
   const normalized = Math.max(0, Math.min(1, (upvotes - minUpvotes) / (maxUpvotes - minUpvotes)));
   //const width = minSize * normalized * (maxSize - minSize);
-  const width = minSize + (2 * upvotes);
+  const width = Math.min(350, minSize + (2 * upvotes));
+  //const width = minSize + (2 * upvotes);
   const height = width;
 
   const basePadding = 8 + normalized * 12;
@@ -197,7 +207,7 @@ function applyNodeStyles(nodes: Node[], highlightDelta: boolean): Node[] {
   return nodes.map((node) => {
     const isOriginalPost = node.data.isOriginalPost;
     const isDelta = node.data.isDelta && highlightDelta;
-    const size = getNodeSize(node.data.upvotes);
+    const size = getNodeSize(node.data.upvotes, isOriginalPost);
 
     let backgroundColor = "#3b82f6";
     let borderColor = "#2563eb";
@@ -376,10 +386,9 @@ export default function Visualization() {
     );
   }, [currentDiscussion]);
 
-  // Place this inside your Visualization component
-const opUpvotes = useMemo(() => {
+  const opUpvotes = useMemo(() => {
   const opNode = currentDiscussion.nodes.find(n => n.data.isOriginalPost);
-  return opNode ? opNode.data.upvotes : 100; // Fallback to 100 to avoid division by zero
+  return opNode ? opNode.data.upvotes : 100;
 }, [currentDiscussion]);
 
   const visibleNodes = useMemo(() => {
