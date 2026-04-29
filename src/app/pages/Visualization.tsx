@@ -170,19 +170,22 @@ const initialDiscussions: Discussion[] = [
 ];
 
 // Calculate node size based on upvotes
-function getNodeSize(upvotes: number): { width: number; padding: string; fontSize: string } {
+function getNodeSize(upvotes: number): { width: number; height: number; padding: string; fontSize: string } {
   const minSize = 120;
   const maxSize = 350;
   const minUpvotes = 0;
   const maxUpvotes = 1500;
 
   const normalized = Math.max(0, Math.min(1, (upvotes - minUpvotes) / (maxUpvotes - minUpvotes)));
-  const width = minSize + normalized * (maxSize - minSize);
+  //const width = minSize * normalized * (maxSize - minSize);
+  const width = minSize + (2 * upvotes);
+  const height = width;
 
   const basePadding = 8 + normalized * 12;
-  const baseFontSize = 11 + normalized * 5;
+  const baseFontSize = 11 + (width / 320) * 5;
 
   return {
+    height,
     width,
     padding: `${basePadding}px`,
     fontSize: `${baseFontSize}px`,
@@ -219,6 +222,7 @@ function applyNodeStyles(nodes: Node[], highlightDelta: boolean): Node[] {
         borderRadius: "12px",
         padding: size.padding,
         width: size.width,
+        height: size.height,
         fontSize: size.fontSize,
         fontWeight: isOriginalPost ? "600" : "500",
         boxShadow: isOriginalPost
@@ -372,6 +376,12 @@ export default function Visualization() {
     );
   }, [currentDiscussion]);
 
+  // Place this inside your Visualization component
+const opUpvotes = useMemo(() => {
+  const opNode = currentDiscussion.nodes.find(n => n.data.isOriginalPost);
+  return opNode ? opNode.data.upvotes : 100; // Fallback to 100 to avoid division by zero
+}, [currentDiscussion]);
+
   const visibleNodes = useMemo(() => {
     const allNodes = layoutedNodes;
     let filtered = allNodes.filter((node) => {
@@ -386,8 +396,10 @@ export default function Visualization() {
 
     const nodesToKeep = new Set<string>();
     
+    const requiredUpvotes = (upvoteFilter / 100) * opUpvotes;
+
     filtered.forEach((node) => {
-      if (node.data.upvotes >= upvoteFilter) {
+      if (node.data.upvotes >= requiredUpvotes) {
         nodesToKeep.add(node.id);
         let currentNode = node;
         while (currentNode.data.parentId) {
@@ -745,13 +757,13 @@ export default function Visualization() {
 
               <div>
                 <label className="block text-gray-700 mb-2">
-                  Minimum Upvotes: {upvoteFilter}
+                  Minimum Upvotes: {upvoteFilter}% of the OP's"
                 </label>
                 <input
                   type="range"
-                  min="0"
-                  max="1500"
-                  step="50"
+                  min="0%"
+                  max="200"
+                  step="1"
                   value={upvoteFilter}
                   onMouseDown={() => saveToHistory()}
                   onChange={(e) => setUpvoteFilter(Number(e.target.value))}
