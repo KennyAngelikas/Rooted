@@ -1,4 +1,5 @@
 import { useCallback, useState, useMemo, useEffect } from "react";
+import { layoutTree } from "../utils/layoutTree.ts";
 import {
   ReactFlow,
   MiniMap,
@@ -364,8 +365,15 @@ export default function Visualization() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [undo, redo]);
 
+  const layoutedNodes = useMemo(() => {
+  return layoutTree(
+    currentDiscussion.nodes,
+    currentDiscussion.edges
+    );
+  }, [currentDiscussion]);
+
   const visibleNodes = useMemo(() => {
-    const allNodes = currentDiscussion.nodes;
+    const allNodes = layoutedNodes;
     let filtered = allNodes.filter((node) => {
       if (depthFilter !== null) {
         return node.data.depth <= depthFilter;
