@@ -27,7 +27,7 @@ import { aiArtDiscussionNodes, aiArtDiscussionEdges } from "../data/ai-art-discu
 // Custom Box Node Component
 function CustomBoxNode({ data, id }: NodeProps) {
   const [isEditing, setIsEditing] = useState(false);
-  
+
   return (
     <div
       style={{
@@ -157,13 +157,13 @@ interface Discussion {
 const initialDiscussions: Discussion[] = [
   {
     id: "sabrina-carpenter",
-    title: "Sabrina Carpenter Apology",
+    title: "AI will lead to more jobs in the long run (Jevon's Paradox)",
     nodes: sabrinaDiscussionNodes,
     edges: sabrinaDiscussionEdges,
   },
   {
     id: "ai-art",
-    title: "AI Art Debate",
+    title: "AI will not create more jobs than it destroys",
     nodes: aiArtDiscussionNodes,
     edges: aiArtDiscussionEdges,
   },
@@ -178,8 +178,8 @@ function getNodeSize(upvotes: number, isOriginalPost: boolean): { width: number;
       padding: '24px',
       fontSize: '20px',
     };
-  } 
- 
+  }
+
   const minSize = 120;
   const maxSize = 350;
   const minUpvotes = 0;
@@ -187,7 +187,7 @@ function getNodeSize(upvotes: number, isOriginalPost: boolean): { width: number;
 
   const normalized = Math.max(0, Math.min(1, (upvotes - minUpvotes) / (maxUpvotes - minUpvotes)));
   //const width = minSize * normalized * (maxSize - minSize);
-  const width = Math.min(350, minSize + (2 * upvotes));
+  const width = Math.min(200, minSize + (2 * upvotes));
   //const width = minSize + (2 * upvotes);
   const height = width;
 
@@ -212,7 +212,7 @@ function applyNodeStyles(nodes: Node[], highlightDelta: boolean): Node[] {
     let backgroundColor = "#3b82f6";
     let borderColor = "#2563eb";
     let shadowColor = "rgba(59, 130, 246, 0.3)";
-    
+
     if (isOriginalPost) {
       backgroundColor = "#ea580c";
       borderColor = "#c2410c";
@@ -248,18 +248,18 @@ export default function Visualization() {
   const [discussions] = useState<Discussion[]>(initialDiscussions);
   const [selectedDiscussionIds, setSelectedDiscussionIds] = useState<string[]>([initialDiscussions[0].id]);
   const [isDiscussionPanelOpen, setIsDiscussionPanelOpen] = useState(true);
-  
+
   // Get selected discussions and merge their data
   const currentDiscussion = useMemo(() => {
     const selected = discussions.filter((d) => selectedDiscussionIds.includes(d.id));
     if (selected.length === 0) return discussions[0];
-    
+
     const mergedNodes: Node[] = [];
     const mergedEdges: Edge[] = [];
-    
+
     selected.forEach((discussion, index) => {
       const offsetX = index * 1200;
-      
+
       discussion.nodes.forEach((node) => {
         mergedNodes.push({
           ...node,
@@ -276,7 +276,7 @@ export default function Visualization() {
           },
         });
       });
-      
+
       discussion.edges.forEach((edge) => {
         mergedEdges.push({
           ...edge,
@@ -286,7 +286,7 @@ export default function Visualization() {
         });
       });
     });
-    
+
     return {
       id: selectedDiscussionIds.join('-'),
       title: selected.map(d => d.title).join(' & '),
@@ -368,8 +368,8 @@ export default function Visualization() {
         event.preventDefault();
         undo();
       }
-      if (((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'z') || 
-          ((event.ctrlKey || event.metaKey) && event.key === 'y')) {
+      if (((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'z') ||
+        ((event.ctrlKey || event.metaKey) && event.key === 'y')) {
         event.preventDefault();
         redo();
       }
@@ -380,16 +380,35 @@ export default function Visualization() {
   }, [undo, redo]);
 
   const layoutedNodes = useMemo(() => {
-  return layoutTree(
-    currentDiscussion.nodes,
-    currentDiscussion.edges
-    );
-  }, [currentDiscussion]);
+    const selected = discussions.filter(d => selectedDiscussionIds.includes(d.id));
+    const allLayouted: Node[] = [];
+
+    selected.forEach((discussion, index) => {
+      const centerX = 600 + index * 1200; // each OP is 800px to the right of the previous
+      const layouted = layoutTree(discussion.nodes, discussion.edges, centerX);
+
+      layouted.forEach(node => {
+        allLayouted.push({
+          ...node,
+          id: `${discussion.id}-${node.id}`,
+          data: {
+            ...node.data,
+            discussionTitle: discussion.title,
+            parentId: node.data.parentId
+              ? `${discussion.id}-${node.data.parentId}`
+              : node.data.parentId,
+          },
+        });
+      });
+    });
+
+    return allLayouted;
+  }, [discussions, selectedDiscussionIds]);
 
   const opUpvotes = useMemo(() => {
-  const opNode = currentDiscussion.nodes.find(n => n.data.isOriginalPost);
-  return opNode ? opNode.data.upvotes : 100;
-}, [currentDiscussion]);
+    const opNode = currentDiscussion.nodes.find(n => n.data.isOriginalPost);
+    return opNode ? opNode.data.upvotes : 100;
+  }, [currentDiscussion]);
 
   const visibleNodes = useMemo(() => {
     const allNodes = layoutedNodes;
@@ -397,14 +416,14 @@ export default function Visualization() {
       if (depthFilter !== null) {
         return node.data.depth <= depthFilter;
       }
-      
+
       if (node.data.depth === 0) return true;
       if (!node.data.parentId) return false;
       return expandedNodes.has(node.data.parentId);
     });
 
     const nodesToKeep = new Set<string>();
-    
+
     const requiredUpvotes = (upvoteFilter / 100) * opUpvotes;
 
     filtered.forEach((node) => {
@@ -433,7 +452,7 @@ export default function Visualization() {
     const allNodes = currentDiscussion.nodes;
     const allEdges = currentDiscussion.edges;
     const visibleNodeIds = new Set(visibleNodes.map((n) => n.id));
-    
+
     const deltaPathNodes = new Set<string>();
     if (highlightDelta) {
       allNodes.forEach((node) => {
@@ -447,12 +466,12 @@ export default function Visualization() {
         }
       });
     }
-    
+
     return allEdges
       .filter((edge) => visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target))
       .map((edge) => {
         const isDeltaPath = highlightDelta && deltaPathNodes.has(edge.target);
-        
+
         return {
           ...edge,
           animated: true,
@@ -470,7 +489,7 @@ export default function Visualization() {
   const handleNodesChange = useCallback(
     (changes: any) => {
       onNodesChange(changes);
-      
+
       changes.forEach((change: any) => {
         if (change.type === 'position' && change.position) {
           setNodePositions((prev) => {
@@ -496,7 +515,7 @@ export default function Visualization() {
       );
 
       const allVisibleNodes = [...visibleNodes];
-      
+
       customElements.forEach((customEl) => {
         if (!allVisibleNodes.find((n) => n.id === customEl.id)) {
           allVisibleNodes.push(customEl);
@@ -506,7 +525,7 @@ export default function Visualization() {
       return allVisibleNodes.map((node) => {
         const savedPos = nodePositions.get(node.id);
         const currentPos = currentPosMap.get(node.id);
-        
+
         if (currentPos) {
           return { ...node, position: currentPos };
         } else if (savedPos) {
@@ -580,7 +599,7 @@ export default function Visualization() {
 
         const currentPosition = nodePositions.get(node.id) || node.position;
         const children = currentDiscussion.nodes.filter((n) => n.data.parentId === node.id);
-        
+
         if (children.length > 0) {
           setNodePositions((prev) => {
             const next = new Map(prev);
@@ -816,11 +835,10 @@ export default function Visualization() {
           >
             <button
               onClick={() => setSelectionMode(!selectionMode)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                selectionMode
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${selectionMode
                   ? "bg-orange-600 text-white hover:bg-orange-700"
                   : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-              }`}
+                }`}
               style={{ fontFamily: "DM Sans, sans-serif" }}
               title="Toggle selection mode to select and move multiple nodes"
             >
@@ -915,11 +933,10 @@ export default function Visualization() {
               {discussions.map((discussion) => (
                 <label
                   key={discussion.id}
-                  className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                    selectedDiscussionIds.includes(discussion.id)
+                  className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${selectedDiscussionIds.includes(discussion.id)
                       ? "bg-orange-100 border-2 border-orange-600"
                       : "bg-gray-50 hover:bg-gray-100 border-2 border-transparent"
-                  }`}
+                    }`}
                 >
                   <input
                     type="checkbox"
@@ -937,9 +954,8 @@ export default function Visualization() {
                     className="w-4 h-4 text-orange-600 rounded focus:ring-2 focus:ring-orange-500"
                   />
                   <span
-                    className={`text-sm flex-1 ${
-                      selectedDiscussionIds.includes(discussion.id) ? "font-semibold text-orange-800" : "text-gray-700"
-                    }`}
+                    className={`text-sm flex-1 ${selectedDiscussionIds.includes(discussion.id) ? "font-semibold text-orange-800" : "text-gray-700"
+                      }`}
                     style={{ fontFamily: "DM Sans, sans-serif" }}
                   >
                     {discussion.title}
@@ -978,11 +994,10 @@ export default function Visualization() {
                 <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 cursor-move">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`px-4 py-2 rounded-full ${
-                        selectedNode.isOriginalPost
+                      className={`px-4 py-2 rounded-full ${selectedNode.isOriginalPost
                           ? "bg-orange-100 text-orange-800"
                           : "bg-blue-100 text-blue-800"
-                      }`}
+                        }`}
                     >
                       <span className="text-xs tracking-wide" style={{ fontFamily: "DM Sans, sans-serif" }}>
                         {selectedNode.isOriginalPost ? "ORIGINAL POST" : "COMMENT"} · {selectedNode.upvotes} upvotes

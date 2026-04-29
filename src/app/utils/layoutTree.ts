@@ -1,13 +1,12 @@
 import { Node, Edge } from "reactflow";
 
-export function layoutTree(nodes: Node[], _edges: Edge[]): Node[] {
+export function layoutTree(nodes: Node[], _edges: Edge[], centerX=600): Node[] {
   const rootNode = nodes.find((node) => node.data.isOriginalPost);
 
   if (!rootNode) {
     return nodes;
   }
 
-  const centerX = 600;
   const centerY = 400;
   const radiusStep = 350;
 
