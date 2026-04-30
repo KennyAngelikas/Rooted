@@ -6,7 +6,7 @@ export function getDiscussionFixtures(): Discussion[] {
   return [
     {
       id: "sabrina-carpenter",
-      title: "Sabrina Carpenter Apology",
+      title: "AI Will Lead To More Tech Jobs",
       nodes: sabrinaDiscussionNodes,
       edges: sabrinaDiscussionEdges,
     },
