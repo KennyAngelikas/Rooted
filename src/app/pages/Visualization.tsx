@@ -1,13 +1,11 @@
-import { useCallback, useState, useMemo } from "react";
-import { layoutTree } from "../utils/layoutTree.ts";
-import { Node, Edge, NodeProps } from "reactflow";
+import { useCallback, useMemo, type MouseEvent } from "react";
 import { AnimatePresence } from "motion/react";
-import { Home } from "lucide-react";
-import { Link } from "react-router";
 import { useVisualizationState } from "../../hooks/useVisualizationState";
 import { useFlowState } from "../../hooks/useFlowState";
 import { useAnnotations } from "../../hooks/useAnnotations";
+import { useFilters } from "../../hooks/useFilters";
 import { getVisibleDiscussionEdges, getVisibleDiscussionNodes } from "../../services/filterService";
+import { layoutTree } from "../../services/layoutService";
 import { DiscussionNodeData } from "../../types/discussion";
 import { DiscussionPanel } from "../../components/DiscussionPanel";
 import { SelectedNodeModal } from "../../components/SelectedNodeModal";
@@ -46,13 +44,20 @@ export default function Visualization() {
     selectionMode,
     setSelectionMode,
     saveToHistory,
+    toggleExpandedNode,
     undo,
     redo,
   } = useVisualizationState();
 
-  const { annotationNodes, addBox, addNote } = useAnnotations();
-
-  const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
+  const { annotations, addBox, addNote, deleteAnnotation, updateAnnotation } = useAnnotations();
+  const { depthFilter: depth, upvoteFilter: upvote, highlightDelta: delta, resetFilters } = useFilters({
+    depthFilter,
+    setDepthFilter,
+    upvoteFilter,
+    setUpvoteFilter,
+    highlightDelta,
+    setHighlightDelta,
+  });
 
   const layoutedNodes = useMemo(
     () => layoutTree(currentDiscussion.nodes, currentDiscussion.edges),
@@ -63,12 +68,13 @@ export default function Visualization() {
     () =>
       getVisibleDiscussionNodes({
         nodes: layoutedNodes,
-        depthFilter,
-        upvotePercent: upvoteFilter,
-        highlightDelta,
+        edges: currentDiscussion.edges,
+        depthFilter: depth,
+        upvotePercent: upvote,
+        highlightDelta: delta,
         expandedNodeIds: expandedNodes,
       }),
-    [layoutedNodes, depthFilter, upvoteFilter, highlightDelta, expandedNodes]
+    [layoutedNodes, currentDiscussion.edges, depth, upvote, delta, expandedNodes]
   );
 
   const visibleEdges = useMemo(
@@ -77,10 +83,35 @@ export default function Visualization() {
         nodes: currentDiscussion.nodes,
         edges: currentDiscussion.edges,
         visibleNodes,
-        highlightDelta,
+        highlightDelta: delta,
       }),
-    [currentDiscussion.edges, currentDiscussion.nodes, visibleNodes, highlightDelta]
+    [currentDiscussion.edges, currentDiscussion.nodes, visibleNodes, delta]
   );
+
+  const {
+    nodes,
+    edges,
+    handleNodesChange,
+    onEdgesChange,
+    onConnect,
+  } = useFlowState({
+    visibleNodes,
+    visibleEdges,
+    annotations,
+    nodePositions,
+    onUpdateNodePosition: (id, position) => {
+      setNodePositions((prev) => {
+        const next = new Map(prev);
+        next.set(id, position);
+        return next;
+      });
+    },
+    onUpdateAnnotationPosition: (id, position) => {
+      updateAnnotation(id, { position });
+    },
+    onUpdateAnnotation: updateAnnotation,
+    onDeleteAnnotation: deleteAnnotation,
+  });
 
   const handleDiscussionToggle = useCallback(
     (discussionId: string, checked: boolean) => {
@@ -119,33 +150,29 @@ export default function Visualization() {
   );
 
   const handleResetFilters = useCallback(() => {
-    saveToHistory();
-    setDepthFilter(null);
-    setUpvoteFilter(0);
-    setHighlightDelta(true);
-  }, [saveToHistory, setDepthFilter, setUpvoteFilter, setHighlightDelta]);
+      saveToHistory();
+      resetFilters();
+  }, [resetFilters, saveToHistory]);
 
-  const {
-    nodes,
-    edges,
-    handleNodesChange,
-    onEdgesChange,
-    onConnect,
-  } = useFlowState({
-    visibleNodes,
-    visibleEdges,
-    annotationNodes,
-    nodePositions,
-    onUpdateNodePosition: (id, position) => {
-      setNodePositions((prev) => {
-        const next = new Map(prev);
-        next.set(id, position);
-        return next;
-      });
+  const handleNodeClick = useCallback(
+    (_event: MouseEvent, node: any) => {
+      if (node?.data?.fullText) {
+        setSelectedNode(node.data as DiscussionNodeData);
+      } else {
+        setSelectedNode(null);
+      }
     },
-  });
+    [setSelectedNode]
+  );
 
-  // ...keep the click / selection handlers unchanged...
+  const handleNodeDoubleClick = useCallback(
+    (_event: MouseEvent, node: any) => {
+      if (node?.data?.fullText) {
+        toggleExpandedNode(node.id);
+      }
+    },
+    [toggleExpandedNode]
+  );
 
   return (
     <div className="w-full h-screen bg-gradient-to-br from-slate-50 to-slate-100 relative">
@@ -157,16 +184,17 @@ export default function Visualization() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={handleNodeClick}
+        onNodeDoubleClick={handleNodeDoubleClick}
         selectionMode={selectionMode}
       >
         <ControlPanels
           isPanelExpanded={isPanelExpanded}
           onToggleFilterExpanded={() => setIsPanelExpanded((prev) => !prev)}
-          depthFilter={depthFilter}
+          depthFilter={depth}
           onDepthFilterChange={handleDepthFilterChange}
-          upvoteFilter={upvoteFilter}
+          upvoteFilter={upvote}
           onUpvoteFilterChange={handleUpvoteFilterChange}
-          highlightDelta={highlightDelta}
+          highlightDelta={delta}
           onHighlightDeltaChange={handleHighlightDeltaChange}
           onResetFilters={handleResetFilters}
           selectionMode={selectionMode}

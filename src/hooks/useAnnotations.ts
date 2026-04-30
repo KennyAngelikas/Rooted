@@ -1,86 +1,72 @@
 import { useCallback, useState } from "react";
-import { Node } from "reactflow";
 
-type AnnotationNodeData = {
-    label?: string;
-    text?: string;
-    color: string;
-    width: number;
-    height: number;
-    onLabelChange?: (id: string, label: string) => void;
-    onTextChange?: (id: string, text: string) => void;
-    onColorChange?: (id: string, color: string) => void;
-    onDelete?: (id: string) => void;
-};
+export type AnnotationType = "box" | "note";
 
-function updateAnnotationNode(nodes: Node[], id: string, patch: Partial<AnnotationNodeData>) {
-    return nodes.map((node) =>
-        node.id === id
-            ? {
-                ...node,
-                data: {
-                    ...node.data,
-                    ...patch,
-                },
-            }
-            : node
-    );
+export interface AnnotationEntity {
+  id: string;
+  type: AnnotationType;
+  position: { x: number; y: number };
+  width: number;
+  height: number;
+  color: string;
+  label?: string;
+  text?: string;
 }
 
 export function useAnnotations() {
-    const [annotationNodes, setAnnotationNodes] = useState<Node[]>([]);
+  const [annotations, setAnnotations] = useState<AnnotationEntity[]>([]);
 
-    const deleteAnnotationNode = useCallback((id: string) => {
-        setAnnotationNodes((nodes) => nodes.filter((node) => node.id !== id));
-    }, []);
+  const deleteAnnotation = useCallback((id: string) => {
+    setAnnotations((current) => current.filter((item) => item.id !== id));
+  }, []);
 
-    const updateAnnotationData = useCallback((id: string, patch: Partial<AnnotationNodeData>) => {
-        setAnnotationNodes((nodes) => updateAnnotationNode(nodes, id, patch));
-    }, []);
+  const updateAnnotation = useCallback(
+    (
+      id: string,
+      patch: Partial<Pick<AnnotationEntity, "label" | "text" | "color" | "width" | "height" | "position">>
+    ) => {
+      setAnnotations((current) => current.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+    },
+    []
+  );
 
-    const addBox = useCallback(() => {
-        const id = `box-${Date.now()}`;
-        const node: Node = {
-            id,
-            type: "customBox",
-            position: { x: 0, y: 0 },
-            data: {
-                label: "New Category",
-                color: "#93c5fd",
-                width: 400,
-                height: 300,
-                onLabelChange: (nodeId: string, label: string) => updateAnnotationData(nodeId, { label }),
-                onColorChange: (nodeId: string, color: string) => updateAnnotationData(nodeId, { color }),
-                onDelete: deleteAnnotationNode,
-            },
-        };
-        setAnnotationNodes((nodes) => [...nodes, node]);
-    }, [deleteAnnotationNode, updateAnnotationData]);
+  const addBox = useCallback(() => {
+    const id = `box-${Date.now()}`;
+    setAnnotations((current) => [
+      ...current,
+      {
+        id,
+        type: "box",
+        position: { x: 0, y: 0 },
+        width: 400,
+        height: 300,
+        color: "#93c5fd",
+        label: "New Category",
+      },
+    ]);
+  }, []);
 
-    const addNote = useCallback(() => {
-        const id = `note-${Date.now()}`;
-        const node: Node = {
-            id,
-            type: "stickyNote",
-            position: { x: 0, y: 0 },
-            data: {
-                text: "Type here...",
-                color: "#fef08a",
-                width: 200,
-                height: 200,
-                onTextChange: (nodeId: string, text: string) => updateAnnotationData(nodeId, { text }),
-                onColorChange: (nodeId: string, color: string) => updateAnnotationData(nodeId, { color }),
-                onDelete: deleteAnnotationNode,
-            },
-        };
-        setAnnotationNodes((nodes) => [...nodes, node]);
-    }, [deleteAnnotationNode, updateAnnotationData]);
+  const addNote = useCallback(() => {
+    const id = `note-${Date.now()}`;
+    setAnnotations((current) => [
+      ...current,
+      {
+        id,
+        type: "note",
+        position: { x: 0, y: 0 },
+        width: 200,
+        height: 200,
+        color: "#fef08a",
+        text: "Type here...",
+      },
+    ]);
+  }, []);
 
-    return {
-        annotationNodes,
-        addBox,
-        addNote,
-        deleteAnnotationNode,
-        updateAnnotationData,
-    } as const;
+  return {
+    annotations,
+    addBox,
+    addNote,
+    deleteAnnotation,
+    updateAnnotation,
+  } as const;
 }

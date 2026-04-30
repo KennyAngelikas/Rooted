@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, type MouseEvent } from "react";
 import {
     ReactFlow,
     MiniMap,
@@ -19,7 +19,8 @@ interface CanvasProps {
     onNodesChange: (changes: NodeChange[]) => void;
     onEdgesChange: (changes: any) => void;
     onConnect: (params: Connection) => void;
-    onNodeClick: (event: React.MouseEvent, node: Node) => void;
+    onNodeClick: (event: MouseEvent, node: Node) => void;
+    onNodeDoubleClick?: (event: MouseEvent, node: Node) => void;
     selectionMode: boolean;
     children?: ReactNode;
 }
@@ -32,6 +33,7 @@ export function Canvas({
     onEdgesChange,
     onConnect,
     onNodeClick,
+    onNodeDoubleClick,
     selectionMode,
     children,
 }: CanvasProps) {
@@ -43,6 +45,7 @@ export function Canvas({
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onNodeDoubleClick={onNodeDoubleClick}
             fitView
             attributionPosition="bottom-right"
             nodeTypes={nodeTypes}

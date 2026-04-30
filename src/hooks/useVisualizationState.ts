@@ -90,6 +90,19 @@ export function useVisualizationState() {
     setHistoryIndex((previous) => Math.min(previous + 1, 49));
   }, [expandedNodes, historyIndex, highlightDelta, nodePositions, depthFilter, upvoteFilter]);
 
+  const toggleExpandedNode = useCallback((nodeId: string) => {
+    saveToHistory();
+    setExpandedNodes((current) => {
+      const next = new Set(current);
+      if (next.has(nodeId)) {
+        next.delete(nodeId);
+      } else {
+        next.add(nodeId);
+      }
+      return next;
+    });
+  }, [saveToHistory]);
+
   const undo = useCallback(() => {
     if (historyIndex > 0) {
       const previousState = history[historyIndex - 1];
@@ -155,6 +168,7 @@ export function useVisualizationState() {
     selectionMode,
     setSelectionMode,
     saveToHistory,
+    toggleExpandedNode,
     undo,
     redo,
   } as const;

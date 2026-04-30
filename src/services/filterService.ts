@@ -2,6 +2,7 @@ import { DiscussionNode, DiscussionEdge, DiscussionNodeData } from "../types/dis
 
 interface GetVisibleNodesParams {
   nodes: DiscussionNode[];
+  edges: DiscussionEdge[];
   depthFilter: number | null;
   upvotePercent: number;
   highlightDelta: boolean;
@@ -34,10 +35,15 @@ function getNodeSize(upvotes: number, isOriginalPost: boolean) {
   };
 }
 
-function styleDiscussionNodes(nodes: DiscussionNode[], highlightDelta: boolean): DiscussionNode[] {
+function styleDiscussionNodes(
+  nodes: DiscussionNode[],
+  leafNodeIds: Set<string>,
+  highlightDelta: boolean
+): DiscussionNode[] {
   return nodes.map((node) => {
     const isOriginalPost = node.data.isOriginalPost;
     const isDelta = node.data.isDelta && highlightDelta;
+    const isVisibleLeaf = leafNodeIds.has(node.id) && node.data.depth > 0;
     const size = getNodeSize(node.data.upvotes, isOriginalPost);
 
     let backgroundColor = "#3b82f6";
@@ -54,12 +60,14 @@ function styleDiscussionNodes(nodes: DiscussionNode[], highlightDelta: boolean):
       shadowColor = "rgba(168, 85, 247, 0.3)";
     }
 
+    const borderStyle = isVisibleLeaf ? "3px solid #000" : `2px solid ${borderColor}`;
+
     return {
       ...node,
       style: {
         background: backgroundColor,
         color: "white",
-        border: `2px solid ${borderColor}`,
+        border: borderStyle,
         borderRadius: "12px",
         padding: size.padding,
         width: size.width,
@@ -76,6 +84,7 @@ function styleDiscussionNodes(nodes: DiscussionNode[], highlightDelta: boolean):
 
 export function getVisibleDiscussionNodes({
   nodes,
+  edges,
   depthFilter,
   upvotePercent,
   highlightDelta,
@@ -119,7 +128,25 @@ export function getVisibleDiscussionNodes({
 
   filtered = filtered.filter((node) => nodesToKeep.size === 0 || nodesToKeep.has(node.id));
 
-  return styleDiscussionNodes(filtered, highlightDelta);
+  const visibleNodeIds = new Set(filtered.map((node) => node.id));
+  const outgoingEdgesBySource = new Map<string, DiscussionEdge[]>();
+
+  edges.forEach((edge) => {
+    const outgoing = outgoingEdgesBySource.get(edge.source) ?? [];
+    outgoing.push(edge);
+    outgoingEdgesBySource.set(edge.source, outgoing);
+  });
+
+  const leafNodeIds = new Set<string>();
+  filtered.forEach((node) => {
+    const outgoing = outgoingEdgesBySource.get(node.id) ?? [];
+    const hasVisibleChild = outgoing.some((edge) => visibleNodeIds.has(edge.target));
+    if (!hasVisibleChild && node.data.depth > 0) {
+      leafNodeIds.add(node.id);
+    }
+  });
+
+  return styleDiscussionNodes(filtered, leafNodeIds, highlightDelta);
 }
 
 interface GetVisibleEdgesParams {
