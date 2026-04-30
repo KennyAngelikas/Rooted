@@ -8,6 +8,7 @@ export interface CustomNodeData {
   depth: number;
   parentId: string | null;
   isDelta?: boolean;
+  isDepth1Compact?: boolean;
 }
 
 export const aiArtDiscussionNodes: Node[] = [
@@ -15,7 +16,7 @@ export const aiArtDiscussionNodes: Node[] = [
     id: "1rq02gl",
     type: "custom",
     data: {
-      label: `CMV: AI will not create more jobs than it destroys, and the historical argument that`,
+      label: `CMV: AI will not create more jobs than it destroys, and the historical argument that "tech...`,
       fullText: `The go-to rebuttal whenever someone raises concerns about AI and job loss is: "Technology has always created more jobs than it destroyed. The automobile replaced the horse, but created millions of new roles." I believe this argument no longer holds, and here's why.
 
 Past technologies replaced human muscle or routine manual work. The new jobs they created required human judgment, creativity, and coordination, things machines couldn't do. AI is fundamentally different because it targets exactly those domains. It writes code, generates designs, moderates content, handles customer service, and analyzes data. These aren't assembly-line tasks. They're the very roles that were supposed to be safe.
@@ -597,6 +598,20 @@ I wish I had evidence for you to counter your argument…`,
   },
 
   {
+    id: "o9osc91",
+    type: "custom",
+    data: {
+      label: `[deleted]`,
+      fullText: `[deleted]`,
+      isOriginalPost: false,
+      upvotes: 60,
+      depth: 2,
+      parentId: "o9onlag",
+    },
+    position: { x: 0, y: 0 },
+  },
+
+  {
     id: "o9owaj8",
     type: "custom",
     data: {
@@ -1008,6 +1023,20 @@ We are purpose driven animals, and I think we will eventually find a way to reor
   },
 
   {
+    id: "o9p3617",
+    type: "custom",
+    data: {
+      label: `[deleted]`,
+      fullText: `[deleted]`,
+      isOriginalPost: false,
+      upvotes: 3,
+      depth: 4,
+      parentId: "o9ozal4",
+    },
+    position: { x: 0, y: 0 },
+  },
+
+  {
     id: "o9sar5r",
     type: "custom",
     data: {
@@ -1057,6 +1086,20 @@ I can’t see it happening in my lifetime only because many people are resisting
       upvotes: 1,
       depth: 3,
       parentId: "o9osc91",
+    },
+    position: { x: 0, y: 0 },
+  },
+
+  {
+    id: "o9ouysz",
+    type: "custom",
+    data: {
+      label: `[deleted]`,
+      fullText: `[deleted]`,
+      isOriginalPost: false,
+      upvotes: 15,
+      depth: 4,
+      parentId: "o9ou450",
     },
     position: { x: 0, y: 0 },
   },
@@ -2373,6 +2416,20 @@ So while it’s true that much of the current discourse around AI is overhyped o
   },
 
   {
+    id: "o9onxe6",
+    type: "custom",
+    data: {
+      label: `[deleted]`,
+      fullText: `[deleted]`,
+      isOriginalPost: false,
+      upvotes: -1,
+      depth: 1,
+      parentId: "1rq02gl",
+    },
+    position: { x: 0, y: 0 },
+  },
+
+  {
     id: "o9ouln5",
     type: "custom",
     data: {
@@ -2407,6 +2464,26 @@ If it's not true, why hasn't it been disproven by any objective research?`,
       upvotes: 4,
       depth: 3,
       parentId: "o9ouln5",
+    },
+    position: { x: 0, y: 0 },
+  },
+
+  {
+    id: "o9s3ldo",
+    type: "custom",
+    data: {
+      label: `Sorry, u/ChipOnlyRedux – your comment has been removed for breaking Rule 5:   &gt; **Comme...`,
+      fullText: `Sorry, u/ChipOnlyRedux – your comment has been removed for breaking Rule 5: 
+
+&gt; **Comments must contribute meaningfully to the conversation**.  
+
+Comments should be on-topic, serious, and contain enough content to move the discussion forward. Jokes, contradictions without explanation, links without context, off-topic comments, undisclosed or purely AI-generated content, and "written upvotes" will be removed. Read [the wiki](https://www.reddit.com/r/changemyview/wiki/rules#wiki_rule_5) for more information.  
+
+If you would like to appeal, review our appeals process [here](https://www.reddit.com/r/changemyview/wiki/modstandards#wiki_appeal_process), then [message the moderators by clicking this link](http://www.reddit.com/message/compose?to=%2Fr%2Fchangemyview&amp;subject=Rule%205%20Appeal%20ChipOnlyRedux&amp;message=ChipOnlyRedux%20would%20like%20to%20appeal%20the%20removal%20of%20\\[their%20comment\\]\\(https://www.reddit.com/r/changemyview/comments/1rq02gl/-/o9onxe6/\\)%20because\\.\\.\\.) within one week of this notice being posted.`,
+      isOriginalPost: false,
+      upvotes: 1,
+      depth: 2,
+      parentId: "o9onxe6",
     },
     position: { x: 0, y: 0 },
   },

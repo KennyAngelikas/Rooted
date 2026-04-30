@@ -15,6 +15,8 @@ import {
   Panel,
   NodeProps,
   NodeResizer,
+  Handle,
+  Position,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { Resizable } from "re-resizable";
@@ -140,7 +142,33 @@ function StickyNoteNode({ data, id }: NodeProps) {
   );
 }
 
+function DiscussionNode({ data }: NodeProps<CustomNodeData>) {
+  const d = data as CustomNodeData;
+  if (d.isDepth1Compact) {
+    return (
+      <>
+        <Handle type="target" position={Position.Top} className="!size-2 !border-0 !bg-transparent" />
+        <Handle type="source" position={Position.Bottom} className="!size-2 !border-0 !bg-transparent" />
+        <div className="size-full shrink-0 rounded-full" aria-label={d.label} title="" />
+      </>
+    );
+  }
+  return (
+    <>
+      <Handle type="target" position={Position.Top} className="!size-2 !border-0 !bg-transparent" />
+      <Handle type="source" position={Position.Bottom} className="!size-2 !border-0 !bg-transparent" />
+      <div
+        className="flex size-full flex-col overflow-hidden text-inherit"
+        style={{ fontSize: "18px", fontWeight: "inherit" }}
+      >
+        <div className="min-h-0 flex-1 overflow-hidden leading-snug">{d.label}</div>
+      </div>
+    </>
+  );
+}
+
 const nodeTypes = {
+  custom: DiscussionNode,
   customBox: CustomBoxNode,
   stickyNote: StickyNoteNode,
 };
@@ -192,7 +220,7 @@ function getNodeSize(upvotes: number, isOriginalPost: boolean): { width: number;
   const height = width;
 
   const basePadding = 8 + normalized * 12;
-  const baseFontSize = 11 + (width / 320) * 5;
+  const baseFontSize = 11 + (width / 350) * 5;
 
   return {
     height,
@@ -202,12 +230,14 @@ function getNodeSize(upvotes: number, isOriginalPost: boolean): { width: number;
   };
 }
 
+const DEPTH1_COMPACT_PX = 22;
+
 // Apply styling to nodes
 function applyNodeStyles(nodes: Node[], highlightDelta: boolean): Node[] {
   return nodes.map((node) => {
     const isOriginalPost = node.data.isOriginalPost;
     const isDelta = node.data.isDelta && highlightDelta;
-    const size = getNodeSize(node.data.upvotes, isOriginalPost);
+    const isCompact = node.data.isDepth1Compact === true;
 
     let backgroundColor = "#3b82f6";
     let borderColor = "#2563eb";
@@ -222,6 +252,29 @@ function applyNodeStyles(nodes: Node[], highlightDelta: boolean): Node[] {
       borderColor = "#9333ea";
       shadowColor = "rgba(168, 85, 247, 0.3)";
     }
+
+    if (isCompact) {
+      return {
+        ...node,
+        style: {
+          background: backgroundColor,
+          color: "white",
+          border: `2px solid ${borderColor}`,
+          borderRadius: "50%",
+          padding: 0,
+          width: DEPTH1_COMPACT_PX,
+          height: DEPTH1_COMPACT_PX,
+          fontSize: 0,
+          fontWeight: "500",
+          boxShadow: `0 2px 6px ${shadowColor}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        },
+      };
+    }
+
+    const size = getNodeSize(node.data.upvotes, isOriginalPost);
 
     return {
       ...node,
@@ -387,7 +440,25 @@ export default function Visualization() {
       const centerX = 600 + index * 1200; // each OP is 800px to the right of the previous
       const layouted = layoutTree(discussion.nodes, discussion.edges, centerX);
 
-      layouted.forEach(node => {
+      const opNode = discussion.nodes.find((n) => n.data.isOriginalPost);
+      const opId = opNode?.id ?? null;
+      const depth1Direct = layouted.filter(
+        (n) => n.data.depth === 1 && opId !== null && n.data.parentId === opId
+      );
+      const top5Depth1Ids = new Set(
+        [...depth1Direct]
+          .sort((a, b) => b.data.upvotes - a.data.upvotes)
+          .slice(0, 5)
+          .map((n) => n.id)
+      );
+
+      layouted.forEach((node) => {
+        const isDepth1Compact =
+          node.data.depth === 1 &&
+          opId !== null &&
+          node.data.parentId === opId &&
+          !top5Depth1Ids.has(node.id);
+
         allLayouted.push({
           ...node,
           id: `${discussion.id}-${node.id}`,
@@ -397,6 +468,7 @@ export default function Visualization() {
             parentId: node.data.parentId
               ? `${discussion.id}-${node.data.parentId}`
               : node.data.parentId,
+            isDepth1Compact,
           },
         });
       });
