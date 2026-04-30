@@ -22,6 +22,8 @@ interface SidebarProps {
     onUpvoteFilterChange: (value: number) => void;
     highlightDelta: boolean;
     onHighlightDeltaChange: (value: boolean) => void;
+    showAiSummaries: boolean;
+    onShowAiSummariesChange: (value: boolean) => void;
     onResetFilters: () => void;
 
     // Visualization Actions Props
@@ -47,6 +49,8 @@ export function Sidebar({
     onUpvoteFilterChange,
     highlightDelta,
     onHighlightDeltaChange,
+    showAiSummaries,
+    onShowAiSummariesChange,
     onResetFilters,
     // Actions
     selectionMode,
@@ -138,6 +142,21 @@ export function Sidebar({
                                 />
                                 <span className="text-sm text-gray-700">Highlight Delta</span>
                             </label>
+                        </div>
+
+                        <div className="mb-4">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={showAiSummaries}
+                                    onChange={(e) => onShowAiSummariesChange(e.target.checked)}
+                                    className="w-4 h-4"
+                                />
+                                <span className="text-sm text-gray-700">Show AI Summary Layer</span>
+                            </label>
+                            <p className="mt-2 text-xs text-gray-500">
+                                Promote recurring first-level themes into a virtual semantic layer.
+                            </p>
                         </div>
 
                         {/* Reset Button */}

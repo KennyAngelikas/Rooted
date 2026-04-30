@@ -1,10 +1,11 @@
-import { useCallback, useMemo, type MouseEvent } from "react";
+import { useCallback, useMemo, useState, type MouseEvent } from "react";
 import { AnimatePresence } from "motion/react";
 import { Link } from "react-router";
 import { useVisualizationState } from "../../hooks/useVisualizationState";
 import { useFlowState } from "../../hooks/useFlowState";
 import { useAnnotations } from "../../hooks/useAnnotations";
 import { useFilters } from "../../hooks/useFilters";
+import { useSemanticLayer } from "../../hooks/useSemanticLayer";
 import { getVisibleDiscussionEdges, getVisibleDiscussionNodes } from "../../services/filterService";
 import { layoutTree } from "../../services/layoutService";
 import { DiscussionNodeData } from "../../types/discussion";
@@ -20,6 +21,7 @@ const nodeTypes = {
 };
 
 export default function Visualization() {
+  const [showAiSummaries, setShowAiSummaries] = useState(false);
   const {
     discussions,
     selectedDiscussionIds,
@@ -58,34 +60,38 @@ export default function Visualization() {
     highlightDelta,
     setHighlightDelta,
   });
+  const semanticDiscussion = useSemanticLayer({
+    discussion: currentDiscussion,
+    enabled: showAiSummaries,
+  });
 
   const layoutedNodes = useMemo(
-    () => layoutTree(currentDiscussion.nodes, currentDiscussion.edges),
-    [currentDiscussion]
+    () => layoutTree(semanticDiscussion.nodes, semanticDiscussion.edges),
+    [semanticDiscussion]
   );
 
   const visibleNodes = useMemo(
     () =>
       getVisibleDiscussionNodes({
         nodes: layoutedNodes,
-        edges: currentDiscussion.edges,
+        edges: semanticDiscussion.edges,
         depthFilter: depth,
         upvotePercent: upvote,
         highlightDelta: delta,
         expandedNodeIds: expandedNodes,
       }),
-    [layoutedNodes, currentDiscussion.edges, depth, upvote, delta, expandedNodes]
+    [layoutedNodes, semanticDiscussion.edges, depth, upvote, delta, expandedNodes]
   );
 
   const visibleEdges = useMemo(
     () =>
       getVisibleDiscussionEdges({
-        nodes: currentDiscussion.nodes,
-        edges: currentDiscussion.edges,
+        nodes: semanticDiscussion.nodes,
+        edges: semanticDiscussion.edges,
         visibleNodes,
         highlightDelta: delta,
       }),
-    [currentDiscussion.edges, currentDiscussion.nodes, visibleNodes, delta]
+    [semanticDiscussion.edges, semanticDiscussion.nodes, visibleNodes, delta]
   );
 
   const {
@@ -199,6 +205,8 @@ export default function Visualization() {
         onUpvoteFilterChange={handleUpvoteFilterChange}
         highlightDelta={delta}
         onHighlightDeltaChange={handleHighlightDeltaChange}
+        showAiSummaries={showAiSummaries}
+        onShowAiSummariesChange={setShowAiSummaries}
         onResetFilters={handleResetFilters}
         selectionMode={selectionMode}
         onToggleSelectionMode={() => setSelectionMode((prev) => !prev)}

@@ -37,11 +37,18 @@ export function SelectedNodeModal({ selectedNode, onClose }: SelectedNodeModalPr
                             <div
                                 className={`px-4 py-2 rounded-full ${selectedNode.isOriginalPost
                                         ? "bg-orange-100 text-orange-800"
-                                        : "bg-blue-100 text-blue-800"
+                                        : selectedNode.isSemanticSummary
+                                            ? "bg-violet-100 text-violet-800"
+                                            : "bg-blue-100 text-blue-800"
                                     }`}
                             >
                                 <span className="text-xs tracking-wide" style={{ fontFamily: "DM Sans, sans-serif" }}>
-                                    {selectedNode.isOriginalPost ? "ORIGINAL POST" : "COMMENT"} · {selectedNode.upvotes} upvotes
+                                    {selectedNode.isOriginalPost
+                                        ? "ORIGINAL POST"
+                                        : selectedNode.isSemanticSummary
+                                            ? "AI SUMMARY"
+                                            : "COMMENT"}{" "}
+                                    · {selectedNode.upvotes} upvotes
                                 </span>
                             </div>
                             {selectedNode.isDelta && (
@@ -51,6 +58,13 @@ export function SelectedNodeModal({ selectedNode, onClose }: SelectedNodeModalPr
                                     </span>
                                 </div>
                             )}
+                            {selectedNode.isSemanticSummary && selectedNode.representedCount ? (
+                                <div className="px-3 py-1 rounded-full bg-violet-50 text-violet-700">
+                                    <span className="text-xs font-semibold tracking-wide" style={{ fontFamily: "DM Sans, sans-serif" }}>
+                                        {selectedNode.representedCount} comments grouped
+                                    </span>
+                                </div>
+                            ) : null}
                         </div>
                         <button
                             onClick={onClose}

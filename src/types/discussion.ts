@@ -9,6 +9,12 @@ export interface DiscussionNodeData {
   parentId: string | null;
   isDelta?: boolean;
   discussionTitle?: string;
+  sourceDiscussionId?: string;
+  sourceNodeId?: string;
+  isSemanticSummary?: boolean;
+  semanticPillarId?: string;
+  representedNodeIds?: string[];
+  representedCount?: number;
 }
 
 export type DiscussionNode = Node<DiscussionNodeData>;

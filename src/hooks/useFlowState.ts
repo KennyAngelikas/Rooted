@@ -97,16 +97,13 @@ export function useFlowState({
                 }
             });
 
-            const customElements = currentNodes.filter(
-                (node) => node.type === "customBox" || node.type === "stickyNote"
+            const annotationNodes = annotationEntitiesToNodes(
+                annotations,
+                onUpdateAnnotation,
+                onDeleteAnnotation
             );
 
-            const allVisibleNodes = [...visibleNodes];
-            customElements.forEach((customEl) => {
-                if (!allVisibleNodes.find((node) => node.id === customEl.id)) {
-                    allVisibleNodes.push(customEl);
-                }
-            });
+            const allVisibleNodes = [...visibleNodes, ...annotationNodes];
 
             return allVisibleNodes.map((node) => {
                 const savedPos = nodePositions.get(node.id);
@@ -123,7 +120,7 @@ export function useFlowState({
                 return node;
             });
         });
-    }, [visibleNodes, annotations, nodePositions, setNodes]);
+    }, [annotations, nodePositions, onDeleteAnnotation, onUpdateAnnotation, setNodes, visibleNodes]);
 
     useEffect(() => {
         setEdges(visibleEdges);

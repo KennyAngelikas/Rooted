@@ -37,36 +37,47 @@ function getNodeSize(upvotes: number, isOriginalPost: boolean) {
 
 function styleDiscussionNodes(
   nodes: DiscussionNode[],
-  leafNodeIds: Set<string>,
+  terminalNodeIds: Set<string>,
   highlightDelta: boolean
 ): DiscussionNode[] {
   return nodes.map((node) => {
     const isOriginalPost = node.data.isOriginalPost;
+    const isSemanticSummary = Boolean(node.data.isSemanticSummary);
     const isDelta = node.data.isDelta && highlightDelta;
-    const isVisibleLeaf = leafNodeIds.has(node.id) && node.data.depth > 0;
+    const isTerminalNode = terminalNodeIds.has(node.id) && node.data.depth > 0;
     const size = getNodeSize(node.data.upvotes, isOriginalPost);
 
     let backgroundColor = "#3b82f6";
     let borderColor = "#2563eb";
     let shadowColor = "rgba(59, 130, 246, 0.3)";
+    let textColor = "white";
 
     if (isOriginalPost) {
       backgroundColor = "#ea580c";
       borderColor = "#c2410c";
       shadowColor = "rgba(234, 88, 12, 0.3)";
+    } else if (isSemanticSummary) {
+      backgroundColor = "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)";
+      borderColor = "#7c3aed";
+      shadowColor = "rgba(124, 58, 237, 0.25)";
+      textColor = "#4c1d95";
     } else if (isDelta) {
       backgroundColor = "#a855f7";
       borderColor = "#9333ea";
       shadowColor = "rgba(168, 85, 247, 0.3)";
     }
 
-    const borderStyle = isVisibleLeaf ? "3px solid #000" : `2px solid ${borderColor}`;
+    const borderStyle = isSemanticSummary
+      ? `4px solid ${borderColor}`
+      : isTerminalNode
+        ? "3px solid #000"
+        : `2px solid ${borderColor}`;
 
     return {
       ...node,
       style: {
         background: backgroundColor,
-        color: "white",
+        color: textColor,
         border: borderStyle,
         borderRadius: "12px",
         padding: size.padding,
@@ -76,7 +87,9 @@ function styleDiscussionNodes(
         fontWeight: isOriginalPost ? "600" : "500",
         boxShadow: isOriginalPost
           ? `0 10px 25px ${shadowColor}`
-          : `0 4px 12px ${shadowColor}`,
+          : isSemanticSummary
+            ? `0 10px 24px ${shadowColor}`
+            : `0 4px 12px ${shadowColor}`,
       },
     };
   });
@@ -100,6 +113,7 @@ export function getVisibleDiscussionNodes({
     }
 
     if (node.data.depth === 0) return true;
+    if (node.data.isSemanticSummary && node.data.depth === 1) return true;
     if (!node.data.parentId) return false;
     return expandedNodeIds.has(node.data.parentId);
   });
@@ -137,16 +151,15 @@ export function getVisibleDiscussionNodes({
     outgoingEdgesBySource.set(edge.source, outgoing);
   });
 
-  const leafNodeIds = new Set<string>();
+  const terminalNodeIds = new Set<string>();
   filtered.forEach((node) => {
     const outgoing = outgoingEdgesBySource.get(node.id) ?? [];
-    const hasVisibleChild = outgoing.some((edge) => visibleNodeIds.has(edge.target));
-    if (!hasVisibleChild && node.data.depth > 0) {
-      leafNodeIds.add(node.id);
+    if (outgoing.length === 0 && node.data.depth > 0) {
+      terminalNodeIds.add(node.id);
     }
   });
 
-  return styleDiscussionNodes(filtered, leafNodeIds, highlightDelta);
+  return styleDiscussionNodes(filtered, terminalNodeIds, highlightDelta);
 }
 
 interface GetVisibleEdgesParams {

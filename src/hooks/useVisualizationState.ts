@@ -47,6 +47,8 @@ export function useVisualizationState() {
           data: {
             ...node.data,
             discussionTitle: discussion.title,
+            sourceDiscussionId: discussion.id,
+            sourceNodeId: node.id,
             parentId: node.data.parentId ? `${discussion.id}-${node.data.parentId}` : node.data.parentId,
           },
         });

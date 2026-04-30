@@ -62,6 +62,7 @@ export function Canvas({
             <MiniMap
                 nodeColor={(node) => {
                     if (node.data?.isOriginalPost) return "#ea580c";
+                    if (node.data?.isSemanticSummary) return "#7c3aed";
                     return "#3b82f6";
                 }}
                 maskColor="rgba(0, 0, 0, 0.1)"
