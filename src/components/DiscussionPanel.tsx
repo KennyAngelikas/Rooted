@@ -22,10 +22,7 @@ export function DiscussionPanel({
             <motion.button
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                onContextMenu={(e) => {
-                    e.preventDefault(); // Prevents the browser's default right-click menu
-                    onToggleOpen();
-                }}
+                onClick={onToggleOpen}
                 className="bg-white/90 backdrop-blur-sm rounded-r-lg shadow-lg p-3 hover:bg-white transition-colors"
                 title="Show discussions"
             >
@@ -60,8 +57,8 @@ export function DiscussionPanel({
                         <label
                             key={discussion.id}
                             className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${isChecked
-                                ? "bg-orange-100 border-2 border-orange-600"
-                                : "bg-gray-50 hover:bg-gray-100 border-2 border-transparent"
+                                    ? "bg-orange-100 border-2 border-orange-600"
+                                    : "bg-gray-50 hover:bg-gray-100 border-2 border-transparent"
                                 }`}
                         >
                             <input

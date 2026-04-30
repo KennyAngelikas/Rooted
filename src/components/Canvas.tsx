@@ -20,6 +20,7 @@ interface CanvasProps {
     onEdgesChange: (changes: any) => void;
     onConnect: (params: Connection) => void;
     onNodeClick: (event: MouseEvent, node: Node) => void;
+    onNodeContextMenu: (event: React.MouseEvent, node: Node) => void; // ADD THIS LINE
     onNodeDoubleClick?: (event: MouseEvent, node: Node) => void;
     selectionMode: boolean;
     children?: ReactNode;
@@ -33,6 +34,7 @@ export function Canvas({
     onEdgesChange,
     onConnect,
     onNodeClick,
+    onNodeContextMenu,
     onNodeDoubleClick,
     selectionMode,
     children,
@@ -51,6 +53,7 @@ export function Canvas({
             nodeTypes={nodeTypes}
             elevateNodesOnSelect={false}
             selectionOnDrag={selectionMode}
+            onNodeContextMenu={onNodeContextMenu} // PASS IT TO REACT FLOW
             panOnDrag={!selectionMode}
             selectionMode={selectionMode ? ("partial" as any) : undefined}
         >

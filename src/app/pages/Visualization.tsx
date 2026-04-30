@@ -150,16 +150,26 @@ export default function Visualization() {
   );
 
   const handleResetFilters = useCallback(() => {
-      saveToHistory();
-      resetFilters();
+    saveToHistory();
+    resetFilters();
   }, [resetFilters, saveToHistory]);
 
+  // 1. Modify the left-click handler so it doesn't open the modal
   const handleNodeClick = useCallback(
     (_event: MouseEvent, node: any) => {
+      // We leave this empty or use it for selecting without opening the modal
+      console.log("Node left-clicked");
+    },
+    []
+  );
+
+  // 2. Add the right-click handler
+  const handleNodeContextMenu = useCallback(
+    (event: React.MouseEvent, node: any) => {
+      event.preventDefault(); // CRITICAL: This stops the browser's right-click menu
+
       if (node?.data?.fullText) {
         setSelectedNode(node.data as DiscussionNodeData);
-      } else {
-        setSelectedNode(null);
       }
     },
     [setSelectedNode]
@@ -208,6 +218,7 @@ export default function Visualization() {
         onConnect={onConnect}
         onNodeClick={handleNodeClick}
         onNodeDoubleClick={handleNodeDoubleClick}
+        onNodeContextMenu={handleNodeContextMenu} // ADD THIS LINE
         selectionMode={selectionMode}
       />
 
