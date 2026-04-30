@@ -1,5 +1,6 @@
 import { useCallback, useMemo, type MouseEvent } from "react";
 import { AnimatePresence } from "motion/react";
+import { Link } from "react-router";
 import { useVisualizationState } from "../../hooks/useVisualizationState";
 import { useFlowState } from "../../hooks/useFlowState";
 import { useAnnotations } from "../../hooks/useAnnotations";
@@ -7,10 +8,9 @@ import { useFilters } from "../../hooks/useFilters";
 import { getVisibleDiscussionEdges, getVisibleDiscussionNodes } from "../../services/filterService";
 import { layoutTree } from "../../services/layoutService";
 import { DiscussionNodeData } from "../../types/discussion";
-import { DiscussionPanel } from "../../components/DiscussionPanel";
 import { SelectedNodeModal } from "../../components/SelectedNodeModal";
 import { Canvas } from "../../components/Canvas";
-import { ControlPanels } from "../../components/ControlPanels";
+import { Sidebar } from "../../components/Sidebar";
 import { CustomBoxNode } from "../../components/CustomBoxNode";
 import { StickyNoteNode } from "../../components/StickyNoteNode";
 
@@ -176,6 +176,29 @@ export default function Visualization() {
 
   return (
     <div className="w-full h-screen bg-gradient-to-br from-slate-50 to-slate-100 relative">
+      {/* Sidebar */}
+      <Sidebar
+        discussions={discussions}
+        selectedDiscussionIds={selectedDiscussionIds}
+        isDiscussionPanelOpen={isDiscussionPanelOpen}
+        onToggleDiscussionPanel={() => setIsDiscussionPanelOpen((prev) => !prev)}
+        onDiscussionToggle={handleDiscussionToggle}
+        isPanelExpanded={isPanelExpanded}
+        onToggleFilterExpanded={() => setIsPanelExpanded((prev) => !prev)}
+        depthFilter={depth}
+        onDepthFilterChange={handleDepthFilterChange}
+        upvoteFilter={upvote}
+        onUpvoteFilterChange={handleUpvoteFilterChange}
+        highlightDelta={delta}
+        onHighlightDeltaChange={handleHighlightDeltaChange}
+        onResetFilters={handleResetFilters}
+        selectionMode={selectionMode}
+        onToggleSelectionMode={() => setSelectionMode((prev) => !prev)}
+        onAddBox={addBox}
+        onAddNote={addNote}
+      />
+
+      {/* Canvas */}
       <Canvas
         nodes={nodes}
         edges={edges}
@@ -186,33 +209,16 @@ export default function Visualization() {
         onNodeClick={handleNodeClick}
         onNodeDoubleClick={handleNodeDoubleClick}
         selectionMode={selectionMode}
-      >
-        <ControlPanels
-          isPanelExpanded={isPanelExpanded}
-          onToggleFilterExpanded={() => setIsPanelExpanded((prev) => !prev)}
-          depthFilter={depth}
-          onDepthFilterChange={handleDepthFilterChange}
-          upvoteFilter={upvote}
-          onUpvoteFilterChange={handleUpvoteFilterChange}
-          highlightDelta={delta}
-          onHighlightDeltaChange={handleHighlightDeltaChange}
-          onResetFilters={handleResetFilters}
-          selectionMode={selectionMode}
-          onToggleSelectionMode={() => setSelectionMode((prev) => !prev)}
-          onAddBox={addBox}
-          onAddNote={addNote}
-        />
-      </Canvas>
+      />
 
-      <div className="fixed left-4 top-1/2 -translate-y-1/2 z-50">
-        <DiscussionPanel
-          discussions={discussions}
-          selectedDiscussionIds={selectedDiscussionIds}
-          isOpen={isDiscussionPanelOpen}
-          onToggleOpen={() => setIsDiscussionPanelOpen((prev) => !prev)}
-          onDiscussionToggle={handleDiscussionToggle}
-        />
-      </div>
+      {/* Home Button - Top Right */}
+      <Link
+        to="/"
+        className="fixed top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg px-4 py-2 text-gray-700 hover:text-orange-600 transition-colors z-50"
+        style={{ fontFamily: "DM Sans, sans-serif" }}
+      >
+        Home
+      </Link>
 
       <AnimatePresence>
         {selectedNode && (
