@@ -173,6 +173,16 @@ export function Sidebar({
                 <div className="space-y-2">
                     <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Actions</h3>
 
+                    {/* Link Input */}
+                    <div className="mb-4">
+                        <label className="text-xs font-medium text-gray-600 block mb-2">Link</label>
+                        <input
+                            type="text"
+                            placeholder="Enter link here"
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                        />
+                    </div>
+
                     <button
                         onClick={onToggleSelectionMode}
                         className={`w-full flex items-center gap-2 px-3 py-2 rounded text-sm font-medium transition-colors ${selectionMode
