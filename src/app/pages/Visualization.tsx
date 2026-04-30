@@ -114,17 +114,15 @@ export default function Visualization() {
   });
 
   const handleDiscussionToggle = useCallback(
-    (discussionId: string, checked: boolean) => {
-      setSelectedDiscussionIds((current) =>
-        checked ? [...current, discussionId] : current.filter((id) => id !== discussionId)
-      );
-      setExpandedNodes(new Set());
-      setNodePositions(new Map());
-      setSelectedNode(null);
-    },
-    [setExpandedNodes, setNodePositions, setSelectedDiscussionIds, setSelectedNode]
-  );
+  (discussionId: string, checked: boolean) => {
+    setSelectedDiscussionIds((current) =>
+      checked ? [...current, discussionId] : current.filter((id) => id !== discussionId)
+    );
 
+    setSelectedNode(null);
+    },
+    [setSelectedDiscussionIds, setSelectedNode]
+  );
   const handleDepthFilterChange = useCallback(
     (value: number | null) => {
       saveToHistory();
