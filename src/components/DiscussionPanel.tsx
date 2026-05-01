@@ -50,6 +50,17 @@ export function DiscussionPanel({
                 </button>
             </div>
 
+            <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2" style={{ fontFamily: "DM Sans, sans-serif" }}>
+                    Paste Reddit Thread Link
+                </label>
+                <textarea
+                    placeholder="https://www.reddit.com/r/.../..."
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm resize-none"
+                    rows={3}
+                />
+            </div>
+
             <div className="space-y-2">
                 {discussions.map((discussion) => {
                     const isChecked = selectedDiscussionIds.includes(discussion.id);
