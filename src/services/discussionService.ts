@@ -3,6 +3,7 @@ import { sabrinaDiscussionNodes, sabrinaDiscussionEdges } from "../app/data/sabr
 import { aiArtDiscussionNodes, aiArtDiscussionEdges } from "../app/data/ai-art-discussion";
 import { aiJobsDiscussionNodes, aiJobsDiscussionEdges } from "../app/data/ai-jobs-discussion";
 import { aiIndustryDiscussionNodes, aiIndustryDiscussionEdges } from "../app/data/ai-industry-discussion";
+import { fruitsVegetablesDiscussionNodes, fruitsVegetablesDiscussionEdges } from "../app/data/fruits-vegetables-discussion";
 
 export function getDiscussionFixtures(): Discussion[] {
   return [
@@ -29,6 +30,12 @@ export function getDiscussionFixtures(): Discussion[] {
       title: "AI Business-Model Wall and Job Comeback",
       nodes: aiIndustryDiscussionNodes,
       edges: aiIndustryDiscussionEdges,
+    },
+    {
+      id: "fruits-vegetables",
+      title: "Are fruits vegetables, or are vegetables fruits?",
+      nodes: fruitsVegetablesDiscussionNodes,
+      edges: fruitsVegetablesDiscussionEdges,
     },
   ];
 }

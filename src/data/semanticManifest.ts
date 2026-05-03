@@ -139,6 +139,25 @@ export const semanticManifest: SemanticDiscussionManifest[] = [
       },
     ],
   },
+  {
+    discussionId: "fruits-vegetables",
+    pillars: [
+      {
+        id: "botanical-vs-culinary",
+        title: "Botanical vs Culinary Definitions",
+        summary:
+          "Most answers trace the confusion to two separate categories: botanically, fruits are seed-bearing flower products, while vegetables are culinary plant parts such as leaves, stems, and roots. This explains why pumpkins, cucumbers, and tomatoes can be fruits in biology but vegetables in everyday cooking.",
+        memberNodeIds: ["ii2lwoc", "ii2mi6c", "ii2kmlt", "iq9wr5w"],
+      },
+      {
+        id: "tomato-double-agent",
+        title: "Tomatoes Are the Double-Agent",
+        summary:
+          "One reply uses humor to highlight how the everyday category is shaped by taste and culture rather than strict botany: tomatoes feel like vegetables even though they are botanically fruits.",
+        memberNodeIds: ["ii2kuqp"],
+      },
+    ],
+  },
 ];
 
 export function getSemanticManifestForDiscussion(discussionId: string) {
