@@ -8,6 +8,7 @@ export interface CustomNodeData {
   depth: number;
   parentId: string | null;
   isDelta?: boolean;
+  isDepth1Compact?: boolean;
 }
 
 export const sabrinaDiscussionNodes: Node[] = [

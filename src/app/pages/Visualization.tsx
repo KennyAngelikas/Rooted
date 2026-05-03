@@ -15,7 +15,33 @@ import { Sidebar } from "../../components/Sidebar";
 import { CustomBoxNode } from "../../components/CustomBoxNode";
 import { StickyNoteNode } from "../../components/StickyNoteNode";
 
+function DiscussionNode({ data }: NodeProps<CustomNodeData>) {
+  const d = data as CustomNodeData;
+  if (d.isDepth1Compact) {
+    return (
+      <>
+        <Handle type="target" position={Position.Top} className="!size-2 !border-0 !bg-transparent" />
+        <Handle type="source" position={Position.Bottom} className="!size-2 !border-0 !bg-transparent" />
+        <div className="size-full shrink-0 rounded-full" aria-label={d.label} title="" />
+      </>
+    );
+  }
+  return (
+    <>
+      <Handle type="target" position={Position.Top} className="!size-2 !border-0 !bg-transparent" />
+      <Handle type="source" position={Position.Bottom} className="!size-2 !border-0 !bg-transparent" />
+      <div
+        className="flex size-full flex-col overflow-hidden text-inherit"
+        style={{ fontSize: "18px", fontWeight: "inherit" }}
+      >
+        <div className="min-h-0 flex-1 overflow-hidden leading-snug">{d.label}</div>
+      </div>
+    </>
+  );
+}
+
 const nodeTypes = {
+  custom: DiscussionNode,
   customBox: CustomBoxNode,
   stickyNote: StickyNoteNode,
 };

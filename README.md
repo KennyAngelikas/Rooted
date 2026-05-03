@@ -72,3 +72,9 @@ As we scale this repository, keep these design decisions in mind:
 - **The 5-Comment Constraint:** To solve the "100+ comment" readability issue, we currently only render the top 5 comments and their subsequent threads. This is a strategic sacrifice of breadth to ensure the UX remains navigable.
 - **Edge Creation:** Users can manually delete and add lines between nodes. While flexible, we are working on making this interaction more intuitive as it currently lacks clear visual cues.
 - **LLM Integration (Future):** We plan to use LLMs to categorize "Argument Framings" (e.g., identifying Strawman arguments or $p$ then $q$ logical structures) and provide automated summaries for the labels.
+
+## Lessons Learned  
+- Understanding a repo and refactoring is necessarily to scale to more complex tasks, and makes your life easier later.
+- Understanding exactly what your intentions are and what information you want to convey to users is vital to creating the visualization. Accessible and helpful user flows are needed.
+  
+
