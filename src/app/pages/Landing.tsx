@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { ArrowRight, Network, MessageSquare, Filter } from "lucide-react";
 
 export default function Landing() {

@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { Panel } from "reactflow";
 import { FilterPanel } from "./FilterPanel";
 import { VisualizationActions } from "./VisualizationActions";

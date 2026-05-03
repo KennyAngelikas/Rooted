@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState, type MouseEvent } from "react";
 import { AnimatePresence } from "motion/react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
+import { Handle, Position, NodeProps } from 'reactflow';
 import { useVisualizationState } from "../../hooks/useVisualizationState";
 import { useFlowState } from "../../hooks/useFlowState";
 import { useAnnotations } from "../../hooks/useAnnotations";
@@ -15,17 +16,23 @@ import { Sidebar } from "../../components/Sidebar";
 import { CustomBoxNode } from "../../components/CustomBoxNode";
 import { StickyNoteNode } from "../../components/StickyNoteNode";
 
+interface CustomNodeData {
+  label: string;
+  isDepth1Compact?: boolean;
+}
+
 function DiscussionNode({ data }: NodeProps<CustomNodeData>) {
-  const d = data as CustomNodeData;
-  if (d.isDepth1Compact) {
+
+  if (data.isDepth1Compact) {
     return (
       <>
         <Handle type="target" position={Position.Top} className="!size-2 !border-0 !bg-transparent" />
         <Handle type="source" position={Position.Bottom} className="!size-2 !border-0 !bg-transparent" />
-        <div className="size-full shrink-0 rounded-full" aria-label={d.label} title="" />
+        <div className="size-full shrink-0 rounded-full" aria-label={data.label} title="" />
       </>
     );
   }
+
   return (
     <>
       <Handle type="target" position={Position.Top} className="!size-2 !border-0 !bg-transparent" />
@@ -34,7 +41,7 @@ function DiscussionNode({ data }: NodeProps<CustomNodeData>) {
         className="flex size-full flex-col overflow-hidden text-inherit"
         style={{ fontSize: "18px", fontWeight: "inherit" }}
       >
-        <div className="min-h-0 flex-1 overflow-hidden leading-snug">{d.label}</div>
+        <div className="min-h-0 flex-1 overflow-hidden leading-snug">{data.label}</div>
       </div>
     </>
   );
