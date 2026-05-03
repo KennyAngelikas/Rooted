@@ -1,18 +1,14 @@
 import { defineConfig } from 'vite'
-import path from 'path'
-import { fileURLToPath } from 'node:url'
-import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': '/src',
     },
   },
   assetsInclude: ['**/*.svg', '**/*.csv'],
+  base: '/Rooted/',  // Add this line for GitHub Pages subpath
 })
